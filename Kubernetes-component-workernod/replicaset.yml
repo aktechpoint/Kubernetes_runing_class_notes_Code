@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: kundan-replicaset1
+spec:
+  replicas: 3 #3 pods will be created
+  selector:   # Pods labels must match this selector for the ReplicaSet to manage them
+    matchLabels:
+      app: kundan-app
+  template:
+    metadata:
+      name: kundan-pod
+      labels:
+        app: kundan-app
+        type: front-end    # This label is used to identify the type of application, in this case, it's a front-end application.  
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:latest

@@ -1,0 +1,45 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: kundan-deployment
+  labels:
+    app: kundan-app
+spec:
+  replicas: 3 #3 pods will be created
+  selector:   # Pods labels must match this selector for the Deployment to manage them
+    matchLabels:
+      app: kundan-app
+  template:
+    metadata:
+      name: kundan-pod
+      labels:
+        app: kundan-app
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+
+
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kundan-deployment
+  labels:
+    app: kundan-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kundan-app
+  template:
+    metadata:
+      labels:
+        app: kundan-app
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
