@@ -150,3 +150,26 @@ spec:
   containers:
   - name: nginx-container 
     image: nginx
+
+
+#download kubectl 
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+# Make executable
+chmod +x kubectl
+
+# Move to system path
+sudo mv kubectl /usr/local/bin/
+
+# Verify installation
+kubectl version --client
+
+
+# Download eksctl
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+
+# Move to system path
+sudo mv /tmp/eksctl /usr/local/bin
+
+# Verify installation
+eksctl version
