@@ -2,3 +2,16 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: kundan-namespace 
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  namespace: kundan-namespace
+  labels:
+    app: nginx
+    type: web
+spec:
+  containers:
+  - name: nginx
+    image: nginx
