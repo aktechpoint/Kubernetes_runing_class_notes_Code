@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: canary-deployment-v2
+  labels:
+    app: java-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: java-app
+      
+  template:
+    metadata:
+      labels:
+        app: java-app
+        
+    spec:
+      containers:
+        - name: canary-container-v2
+          image: httpd:latest
+          ports:
+            - containerPort: 3000
+          resources:
+            limits:
+              cpu: "100m"
+              memory: "256Mi"
+            requests:
+              cpu: "250m"
+              memory: "128Mi"
+          imagePullPolicy: Always
+      restartPolicy: Always

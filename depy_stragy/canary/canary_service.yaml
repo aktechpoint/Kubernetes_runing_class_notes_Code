@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: canary-service
+  labels:
+    app: java-app
+spec:
+  type: loadBalancer
+  ports:
+    - protocol: TCP
+      name: http-port
+      port: 80
+      targetPort: 3000
+  selector:
+    app: java-app
