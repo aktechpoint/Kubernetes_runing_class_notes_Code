@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: student-project-deployment
+  labels:
+    app: django-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: django-app
+  template:
+    metadata:
+      labels:
+        app: django-app
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: sdtudent-project-container
+          image: abhishek625/student_project:latest
+          ports:
+            - containerPort: 8000
+          imagePullPolicy: Always

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: payment-deployment
+  name: payment-deployment-green-v2
   namespace: default
 spec:
   replicas: 2
@@ -16,7 +16,7 @@ spec:
         replica: green
     spec:
       containers:
-        - name: payment-container
+        - name: green-container
           image: httpd:latest
           ports:
             - containerPort: 80
