@@ -16,7 +16,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 30
       containers:
-        - name: sdtudent-project-container
+        - name: student-project-container
           image: abhishek625/student_project:1.0
           ports:
             - containerPort: 8000
