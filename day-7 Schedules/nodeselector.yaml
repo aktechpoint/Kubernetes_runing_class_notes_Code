@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kundan-deployment
+  labels:
+    app: kundan
+    type: frontend
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: kundan
+
+  template:
+    metadata:
+      labels:
+        app: kundan
+        type: frontend
+
+    spec:
+      nodeSelector:
+        clr: blue
+
+      containers:
+      - name: kundan-container
+        image: nginx

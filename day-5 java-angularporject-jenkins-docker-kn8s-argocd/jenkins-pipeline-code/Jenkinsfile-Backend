@@ -1,0 +1,78 @@
+pipeline{
+    agent any
+    tools {
+        maven 'maven-3.8.4'
+    }
+    environment {
+        SCANNER_HOME = tool 'sonar-scanner'
+        AWS_ACCOUNT_ID = credentials('aws-account-id')
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        AWS_REGION = 'ap-south-1'
+        ECR_REPOSITORY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/"
+
+    }
+    stages{
+        stage('cleaning workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/aktechpoint/angular_java_docker_compose_project.git'
+            }
+        }
+        stage('sonarqube analysis') {
+            steps {
+                dir('Productservice'){
+                    withSonarQubeEnv('sonarqube') {
+                        sh "${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=backend -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=admin -Dsonar.password=admin"
+                    }
+                }
+            }
+        }
+        stage('quality gate') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-credentials', url: 'http://localhost:9000'
+                }
+            }
+        }
+        stage('trivy file scan') {
+            steps {
+                dir('Productservice'){
+                    sh 'trivy fs --exit-code 1 --severity HIGH,CRITICAL .'
+                }
+            }
+        }
+        stage('build') {
+            steps {
+                dir('Productservice'){
+                    sh 'docker system prune -f'
+                    sh 'docker container prune -f'
+                    sh 'docker build -t ${ECR_REPOSITORY} .'
+                }
+            }
+        }
+        stage('push to ecr') {
+            steps {
+                sh 'aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}'
+                sh 'docker tag ${ECR_REPOSITORY}:latest ${ECR_REPOSITORY}:latest'
+                sh 'docker push ${ECR_REPOSITORY}'
+            }
+        }
+        stage('trivy image scan') {
+            steps {
+                sh 'trivy image --exit-code 1 --severity HIGH,CRITICAL ${ECR_REPOSITORY}:latest'
+            }
+        }
+        stage('update image tag in deployment file') {
+            steps {
+                sh "sed -i 's|image:.*|image: ${ECR_REPOSITORY}:${build_no}|g' k8s-deployment.yaml"
+            }
+        }
+
+
+    }
+}

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-required-affinity-deployment
+  labels:
+    app: nginx
+    type: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+      type: frontend
+  template:
+    metadata:
+      labels:
+        app: nginx
+        type: frontend
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: clr
+                operator: In
+                values:
+                - blue
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80

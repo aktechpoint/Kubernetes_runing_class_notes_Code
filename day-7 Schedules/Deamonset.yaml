@@ -1,0 +1,20 @@
+apiVersion: app/v1
+kind: DaemonSet
+metadata:
+  name: saif-Deployment
+  labels: 
+    app: saif
+spec:
+  selector: 
+    MatchLabels:
+      app: saif
+  template:
+    metadata:
+      labels:
+        app: saif
+    spec: 
+      containers:
+        -name: saif-nginx
+        image: nginx:latest
+        ports:
+          -containerPort: 80
