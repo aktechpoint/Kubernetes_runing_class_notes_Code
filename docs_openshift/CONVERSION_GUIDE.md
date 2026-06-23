@@ -1,4 +1,4 @@
-# OpenShift Conversion Summary
+# OpenShift  Summary
 
 ## Overview
 This directory contains the complete conversion of your Kubernetes documentation to OpenShift format. All manifests have been updated with OpenShift-specific configurations, security contexts, and best practices.
