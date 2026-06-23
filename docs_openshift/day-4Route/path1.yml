@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: path-route-1
+  annotations:
+    description: "Additional path-based route example"
+spec:
+  host: example.com
+  path: /service1
+  to:
+    kind: Service
+    name: service1
+    weight: 100
+  port:
+    targetPort: 8080
+  wildcardPolicy: None

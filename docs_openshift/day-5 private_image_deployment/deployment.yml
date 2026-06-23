@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: private-app-deployment
+  labels:
+    app: private-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: private-app
+  template:
+    metadata:
+      labels:
+        app: private-app
+    spec:
+      securityContext:
+        fsGroup: 1000
+      imagePullSecrets:
+      - name: private-registry-secret
+      containers:
+      - name: private-container
+        image: myregistry.azurecr.io/private-app:latest
+        ports:
+        - containerPort: 8080
+        imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: private-registry-secret
+  type: kubernetes.io/dockercfg
+data:
+  .dockercfg: ewoJImF1dGhzIjogewogICAgICAgICJteXJlZ2lzdHJ5LmF6dXJlY3IuaW8iOiB7CiAgICAgICAgICAgICJ1c2VybmFtZSI6ICJ1c2VybmFtZSIsCiAgICAgICAgICAgICJwYXNzd29yZCI6ICJwYXNzd29yZCIsCiAgICAgICAgICAgICJhdXRoIjogImF1dGhfc3RyaW5nIgogICAgICAgIH0KICB9Cn0=

@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+    
+    environment {
+        REGISTRY = 'quay.io'
+        REGISTRY_CREDENTIALS = credentials('quay-credentials')
+        IMAGE_NAME = 'angular_project'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out Angular project...'
+                checkout scm
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo 'Building Angular application...'
+                sh '''
+                    npm install
+                    npm run build
+                '''
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker image...'
+                sh '''
+                    docker build -t ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
+                '''
+            }
+        }
+        
+        stage('Push to Registry') {
+            steps {
+                echo 'Pushing image to Quay.io...'
+                sh '''
+                    echo $REGISTRY_CREDENTIALS_PSW | docker login -u $REGISTRY_CREDENTIALS_USR --password-stdin ${REGISTRY}
+                    docker push ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                '''
+            }
+        }
+        
+        stage('Deploy to OpenShift') {
+            steps {
+                echo 'Deploying to OpenShift...'
+                sh '''
+                    oc set image deployment/angular-app-deployment angular-container=${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} -n default
+                '''
+            }
+        }
+    }
+}

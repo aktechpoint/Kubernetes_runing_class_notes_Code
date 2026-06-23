@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recreate-deployment
+  labels:
+    app: recreate-app
+spec:
+  replicas: 3
+  strategy:
+    type: Recreate  # Kill all pods and then create new ones
+  selector:
+    matchLabels:
+      app: recreate-app
+  template:
+    metadata:
+      labels:
+        app: recreate-app
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: app-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL

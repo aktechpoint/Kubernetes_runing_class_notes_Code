@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-taint-toleration-deployment
+  labels:
+    app: nginx
+    value: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+      value: frontend
+  template:
+    metadata:
+      labels:
+        app: nginx
+        value: frontend
+    spec:
+      securityContext:
+        fsGroup: 1000
+      # Tolerations allow pods to be scheduled on tainted nodes
+      tolerations:
+      - key: "clr"
+        operator: "Equal"
+        value: "blue"
+        effect: "NoSchedule"
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: student-project-deployment
+  labels:
+    app: django-app
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: django-app
+  template:
+    metadata:
+      labels:
+        app: django-app
+    spec:
+      securityContext:
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: student-project-container
+        image: abhishek625/student_project:1.0
+        ports:
+        - containerPort: 8000
+        imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        env:
+        - name: DJANGO_SETTINGS_MODULE
+          value: "settings.production"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-service
+  labels:
+    app: django-app
+spec:
+  type: LoadBalancer
+  selector:
+    app: django-app
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP

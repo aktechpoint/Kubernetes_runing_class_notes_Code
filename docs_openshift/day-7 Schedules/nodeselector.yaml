@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kundan-deployment
+  labels:
+    app: kundan
+    type: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kundan
+  template:
+    metadata:
+      labels:
+        app: kundan
+        type: frontend
+    spec:
+      securityContext:
+        fsGroup: 1000
+      # nodeSelector: Pods will only be scheduled on nodes with matching labels
+      nodeSelector:
+        clr: blue
+      containers:
+      - name: kundan-container
+        image: nginx
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL

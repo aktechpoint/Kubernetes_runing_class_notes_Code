@@ -1,0 +1,53 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: route-resource-dns
+  annotations:
+    description: "OpenShift Route with DNS configuration"
+    external-dns.alpha.kubernetes.io/hostname: thekundan.com
+spec:
+  host: thekundan.com
+  to:
+    kind: Service
+    name: nginx
+    weight: 100
+  port:
+    targetPort: 80
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: httpd-route-dns
+spec:
+  host: thekundan.com
+  path: /httpd
+  to:
+    kind: Service
+    name: httpd
+    weight: 100
+  port:
+    targetPort: 80
+  tls:
+    termination: edge
+  wildcardPolicy: None
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: abhishek-route-dns
+spec:
+  host: thekundan.com
+  path: /abhishek
+  to:
+    kind: Service
+    name: httpd
+    weight: 100
+  port:
+    targetPort: 80
+  tls:
+    termination: edge
+  wildcardPolicy: None

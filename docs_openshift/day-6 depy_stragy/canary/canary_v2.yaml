@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: canary-v2
+  labels:
+    app: canary-app
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: canary-app
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: canary-app
+        version: v2
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: canary-container-v2
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL

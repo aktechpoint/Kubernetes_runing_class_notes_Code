@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kundan-deployment
+  labels:
+    app: kundan-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kundan-app
+  template:
+    metadata:
+      labels:
+        app: kundan-app
+    spec:
+      securityContext:
+        fsGroup: 65534
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      volumes:
+      - name: tmp
+        emptyDir: {}

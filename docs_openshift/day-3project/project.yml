@@ -1,0 +1,29 @@
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  name: kundan-project
+  annotations:
+    openshift.io/description: "Kundan OpenShift Project"
+spec: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  namespace: kundan-project
+  labels:
+    app: nginx
+    type: web
+spec:
+  securityContext:
+    fsGroup: 65534
+    runAsNonRoot: true
+    runAsUser: 65534
+  containers:
+  - name: nginx
+    image: nginx
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL

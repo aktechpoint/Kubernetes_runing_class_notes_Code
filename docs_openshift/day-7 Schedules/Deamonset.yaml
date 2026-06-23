@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: saif-daemonset
+  labels:
+    app: saif
+spec:
+  selector:
+    matchLabels:
+      app: saif
+  template:
+    metadata:
+      labels:
+        app: saif
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: saif-nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      # DaemonSet runs on all nodes by default, but can be restricted with nodeSelector

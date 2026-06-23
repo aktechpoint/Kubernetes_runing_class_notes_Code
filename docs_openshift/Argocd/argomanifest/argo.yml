@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: student-project-argo
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/student-project
+    path: openshift/
+    targetRevision: main
+    plugin:
+      name: kustomize
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: student-project
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

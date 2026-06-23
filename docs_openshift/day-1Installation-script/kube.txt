@@ -1,0 +1,91 @@
+# OpenShift Quick Reference Guide
+
+## Key OpenShift Commands
+
+### Authentication
+```bash
+oc login <cluster-url> -u <username> -p <password>
+oc logout
+oc whoami
+```
+
+### Projects (Namespaces)
+```bash
+oc new-project <project-name>
+oc get projects
+oc project <project-name>
+oc delete project <project-name>
+```
+
+### Resources
+```bash
+oc apply -f <manifest>
+oc create -f <manifest>
+oc delete -f <manifest>
+oc get <resource-type>
+oc describe <resource-type> <resource-name>
+```
+
+### Pods
+```bash
+oc get pods
+oc get pods -w  # Watch
+oc describe pod <pod-name>
+oc logs <pod-name>
+oc logs -f <pod-name>  # Follow logs
+oc exec -it <pod-name> -- /bin/bash
+```
+
+### Deployments
+```bash
+oc get deployments
+oc scale deployment/<name> --replicas=3
+oc set image deployment/<name> <container>=<image>
+oc rollout status deployment/<name>
+oc rollout undo deployment/<name>
+```
+
+### Services & Routes
+```bash
+oc get services
+oc get routes
+oc expose service/<service-name>  # Create route
+oc expose service/<service-name> --hostname=custom.domain.com
+```
+
+### Building Images
+```bash
+oc new-build --binary --name=<app-name>
+oc start-build <app-name> --from-dir=.
+oc get builds
+oc logs -f build/<build-name>
+```
+
+## Key Differences: Kubernetes vs OpenShift
+
+| Kubernetes | OpenShift |
+|-----------|-----------|
+| Namespace | Project |
+| Ingress | Route |
+| Deployment | Deployment or DeploymentConfig |
+| - | SecurityContextConstraints (SCC) |
+| - | BuildConfig |
+| - | ImageStream |
+
+## OpenShift Security Features
+
+- **SecurityContextConstraints (SCC)**: Control pod security policies
+- **RBAC Integration**: Fine-grained access control
+- **Network Policies**: Built-in network isolation
+- **Image Streams**: Efficient image management
+- **Built-in Registry**: Integrated container registry
+
+## Best Practices
+
+1. Always set resource requests and limits
+2. Use health checks (liveness and readiness probes)
+3. Implement proper security contexts
+4. Use ConfigMaps and Secrets for configuration
+5. Implement logging and monitoring
+6. Use ArgoCD for GitOps workflows
+7. Follow the principle of least privilege

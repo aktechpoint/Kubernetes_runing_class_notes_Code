@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-preferred-affinity-deployment
+  labels:
+    app: nginx
+    type: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+      type: frontend
+  template:
+    metadata:
+      labels:
+        app: nginx
+        type: frontend
+    spec:
+      securityContext:
+        fsGroup: 1000
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: clr
+                operator: In
+                values:
+                - blue
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
