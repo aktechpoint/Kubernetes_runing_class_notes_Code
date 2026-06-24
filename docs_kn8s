@@ -955,34 +955,306 @@ For more details:
 -------------ArgoCD---------------------
 ---------------------------------------
 
-Argo CD is a declarative continuous delivery tool for Kubernetes. It can be used as a standalone tool or as a part of your CI/CD workflow to deliver needed resources to your clusters.
+# Argo CD Installation on OpenShift
 
-Install process
+## What is Argo CD?
 
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+Argo CD is a declarative GitOps Continuous Delivery tool for Kubernetes and OpenShift. It continuously monitors Git repositories and automatically synchronizes application manifests to OpenShift clusters.
 
-kubectl get pods -n argocd
+Using Argo CD, the Git repository becomes the single source of truth for application deployment.
 
-kubectl get svc -n argocd
+---
 
-kubectl edit svc argocd-server -n argocd
+# Architecture
 
-kubectl get svc -n argocd
+Git Repository
+|
+v
+Argo CD
+|
+v
+OpenShift Cluster
+|
++--> Deployments
++--> Services
++--> Routes
++--> ConfigMaps
++--> Secrets
 
-#access it nodeIp:Nodeport
+---
 
-kubectl get secrets -n argocd
+# Step 1: Create Namespace (Project)
 
-user= admin
+Create a dedicated project for Argo CD.
 
-kubectl edit secret argocd-initial-admin-secret -n argocd    # to get intial credential to login argocd
+```bash
+oc new-project argocd
+```
 
+Verify:
 
-echo bnFabGx3emtCNjB5dFZQSA== | base64  --decode
+```bash
+oc get projects
+```
 
+---
 
-For more details:
+# Step 2: Install Argo CD
+
+Apply the Argo CD installation manifest.
+
+```bash
+oc apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
+
+Wait for all resources to be created.
+
+---
+
+# Step 3: Verify Pods
+
+Check whether all Argo CD components are running.
+
+```bash
+oc get pods -n argocd
+```
+
+Expected Components:
+
+```text
+argocd-application-controller
+argocd-dex-server
+argocd-notifications-controller
+argocd-redis
+argocd-repo-server
+argocd-server
+```
+
+All pods should be in Running state.
+
+---
+
+# Step 4: Verify Services
+
+```bash
+oc get svc -n argocd
+```
+
+Example:
+
+```text
+argocd-server
+argocd-repo-server
+argocd-dex-server
+```
+
+---
+
+# Step 5: Expose Argo CD Using OpenShift Route
+
+Unlike Kubernetes NodePort access, OpenShift uses Routes.
+
+Expose Argo CD Server:
+
+```bash
+oc expose svc argocd-server -n argocd
+```
+
+Verify Route:
+
+```bash
+oc get route -n argocd
+```
+
+Example Output:
+
+```text
+NAME            HOST/PORT
+argocd-server   argocd-server-argocd.apps.cluster.example.com
+```
+
+Access Argo CD using:
+
+```text
+https://argocd-server-argocd.apps.cluster.example.com
+```
+
+---
+
+# Step 6: Get Initial Admin Password
+
+List Secrets:
+
+```bash
+oc get secrets -n argocd
+```
+
+Retrieve Initial Password:
+
+```bash
+oc get secret argocd-initial-admin-secret \
+-n argocd \
+-o jsonpath="{.data.password}"
+```
+
+Example Output:
+
+```text
+bnFabGx3emtCNjB5dFZQSA==
+```
+
+Decode Password:
+
+```bash
+echo bnFabGx3emtCNjB5dFZQSA== | base64 -d
+```
+
+---
+
+# Login Details
+
+Username:
+
+```text
+admin
+```
+
+Password:
+
+```text
+Decoded value from secret
+```
+
+---
+
+# Alternative Method
+
+View Secret Directly:
+
+```bash
+oc edit secret argocd-initial-admin-secret -n argocd
+```
+
+Copy the password value from:
+
+```yaml
+data:
+  password: <encoded-password>
+```
+
+Decode it using:
+
+```bash
+echo <encoded-password> | base64 -d
+```
+
+---
+
+# Verify Argo CD Components
+
+```bash
+oc get all -n argocd
+```
+
+---
+
+# Login Flow
+
+Developer Pushes Code
+|
+v
+GitHub
+|
+v
+Argo CD
+|
+v
+OpenShift Cluster
+|
++--> Deployment
++--> Service
++--> Route
++--> ConfigMap
++--> Secret
+
+---
+
+# Useful Commands
+
+Check Pods
+
+```bash
+oc get pods -n argocd
+```
+
+Check Services
+
+```bash
+oc get svc -n argocd
+```
+
+Check Routes
+
+```bash
+oc get route -n argocd
+```
+
+Check Secrets
+
+```bash
+oc get secrets -n argocd
+```
+
+Describe Route
+
+```bash
+oc describe route argocd-server -n argocd
+```
+
+Delete Argo CD
+
+```bash
+oc delete project argocd
+```
+
+---
+
+# OpenShift Interview Questions
+
+Q1. How is Argo CD accessed in OpenShift?
+
+Answer:
+Using OpenShift Routes instead of NodePort or LoadBalancer.
+
+Q2. What is the default username for Argo CD?
+
+Answer:
+
+```text
+admin
+```
+
+Q3. Where is the initial password stored?
+
+Answer:
+
+```text
+argocd-initial-admin-secret
+```
+
+Q4. How do you expose Argo CD in OpenShift?
+
+Answer:
+
+```bash
+oc expose svc argocd-server -n argocd
+```
+
+Q5. What is GitOps?
+
+Answer:
+GitOps is an operational framework where Git acts as the single source of truth and Argo CD continuously synchronizes the cluster state with Git.
+
 
 
 =================================================================
